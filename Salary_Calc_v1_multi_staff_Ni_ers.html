@@ -1,0 +1,1867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MattsUK Family Business Tax Calculator</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <style>
+    /* Reset */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    /* Colors */
+    :root {
+      --primary-color: #1e88e5;
+      --primary-dark: #1565c0;
+      --secondary-color: #26a69a;
+      --accent-color: #ff5722;
+      --text-color: #333;
+      --light-bg: #f5f5f5;
+      --card-bg: #fff;
+      --border-color: #ddd;
+      --success-color: #4caf50;
+      --warning-color: #ff9800;
+      --error-color: #f44336;
+    }
+    
+    /* Layout */
+    body {
+      background-color: #f5f5f5;
+      color: #333;
+      line-height: 1.6;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    h1 {
+      color: #1565c0;
+      margin-bottom: 10px;
+    }
+    
+    .description {
+      color: #666;
+      margin-bottom: 20px;
+    }
+    
+    /* Cards */
+    .card {
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 25px;
+      margin-bottom: 25px;
+    }
+    
+    .card-header {
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 15px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .card-title {
+      font-size: 1.4rem;
+      color: #1e88e5;
+    }
+    
+    /* Forms */
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    
+    input[type="text"],
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    
+    /* Buttons */
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    .btn-small {
+      padding: 8px 16px;
+      font-size: 14px;
+    }
+    
+    .btn-primary {
+      background-color: #1e88e5;
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background-color: #1565c0;
+    }
+    
+    .btn-secondary {
+      background-color: #26a69a;
+      color: white;
+    }
+    
+    .btn-secondary:hover {
+      background-color: #00897b;
+    }
+    
+    .btn-danger {
+      background-color: #f44336;
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      background-color: #d32f2f;
+    }
+    
+    /* Tabs */
+    .tabs {
+      display: flex;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #ddd;
+    }
+    
+    .tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+    }
+    
+    .tab.active {
+      border-bottom: 3px solid #1e88e5;
+      font-weight: 600;
+      color: #1e88e5;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    /* Layout helpers */
+    .column-layout {
+      display: flex;
+      gap: 20px;
+    }
+    
+    .column {
+      flex: 1;
+    }
+    
+    /* Summary styles */
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .summary-label {
+      font-weight: 500;
+    }
+    
+    .summary-value {
+      font-weight: 600;
+    }
+    
+    .summary-section {
+      margin-bottom: 20px;
+    }
+    
+    .section-header {
+      font-size: 1.1rem;
+      margin: 15px 0 10px;
+      color: #1e88e5;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 5px;
+    }
+    
+    .verdict {
+      padding: 15px;
+      margin-top: 20px;
+      border-radius: 4px;
+      text-align: center;
+      font-weight: 600;
+    }
+    
+    .verdict.positive {
+      background-color: rgba(76, 175, 80, 0.1);
+      color: #4caf50;
+      border: 1px solid rgba(76, 175, 80, 0.3);
+    }
+    
+    .verdict.negative {
+      background-color: rgba(255, 152, 0, 0.1);
+      color: #ff9800;
+      border: 1px solid rgba(255, 152, 0, 0.3);
+    }
+    
+    .actions {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+    }
+    
+    /* Tables */
+    .results-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+    
+    .results-table th,
+    .results-table td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: right;
+    }
+    
+    .results-table th {
+      background-color: #f0f4f8;
+    }
+    
+    .results-table tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    
+    .chart-container {
+      position: relative;
+      height: 400px;
+      margin-top: 20px;
+    }
+    
+    /* Employee cards */
+    .employee-card {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 15px;
+      margin-bottom: 10px;
+      background-color: #fcfcfc;
+    }
+    
+    .employee-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    
+    .employee-title {
+      font-weight: 600;
+      font-size: 16px;
+    }
+    
+    .employee-controls {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .employees-list {
+      margin-top: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .family-summary {
+      background-color: #f0f8ff;
+      padding: 15px;
+      margin-top: 20px;
+      border-radius: 4px;
+      border-left: 4px solid #1e88e5;
+    }
+    
+    .total-row {
+      font-weight: bold;
+      background-color: #e6f2ff !important;
+    }
+    
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .badge-primary {
+      background-color: #1e88e5;
+      color: white;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .column-layout {
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+        margin-bottom: 10px;
+      }
+      
+      .card {
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Matt's UK Family Business Tax Calculator</h1>
+      <p class="description">Analyze the tax implications of paying salaries to multiple family members</p>
+    </header>
+
+    <div class="tabs">
+      <div class="tab active" id="tab-multi">Family Business Calculator</div>
+      <div class="tab" id="tab-comparison">Salary Comparison</div>
+    </div>
+
+    <!-- Multi-employee Mode -->
+    <div class="tab-content active" id="content-multi">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Family Business Tax Calculator</h2>
+        </div>
+        <form id="multi-employee-form">
+          <div class="form-group">
+            <label for="tax-year">Tax Year</label>
+            <select id="tax-year" class="form-control">
+              <option value="2024-25" selected>2024/25</option>
+              <option value="2025-26">2025/26</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="company-profit">Company Bottom Line Profit (£)</label>
+            <input type="number" id="company-profit" min="0" step="1" required placeholder="e.g. 100000">
+          </div>
+          
+          <div class="form-group employers-allowance-section" style="padding: 15px; background-color: #f0f8ff; border-radius: 4px; margin-bottom: 20px;">
+            <label>
+              <input type="checkbox" id="use-employers-allowance"> Apply Employer's Allowance
+              <span style="font-size: 0.85rem; color: #666; margin-left: 5px;">
+                (£5,000 for 2024/25, £10,500 for 2025/26)
+              </span>
+            </label>
+            
+            <div id="employers-allowance-details" style="margin-top: 10px; display: none;">
+              <div style="margin-bottom: 10px;">
+                <label for="employers-allowance-amount">Amount to claim (£):</label>
+                <input type="number" id="employers-allowance-amount" min="0" step="100" style="width: 150px; display: inline-block; margin: 0 10px;">
+                <button type="button" id="max-allowance-btn" class="btn btn-secondary btn-small">Maximum</button>
+              </div>
+              <p style="font-size: 0.85rem; color: #666; margin-top: 5px;">
+                Note: If you have other employees outside this calculation, you may want to claim only a portion of the allowance.
+              </p>
+            </div>
+          </div>
+
+          <div class="section-header">Family Employees</div>
+          <div id="employees-container" class="employees-list">
+            <!-- Employee entries will be added here -->
+            <div class="employee-card" data-employee-id="1">
+              <div class="employee-header">
+                <div class="employee-title">Director <span class="badge badge-primary">Primary</span></div>
+                <div class="employee-controls">
+                  <button type="button" class="btn btn-danger btn-small" disabled>Remove</button>
+                </div>
+              </div>
+              <div class="column-layout">
+                <div class="column">
+                  <div class="form-group">
+                    <label for="employee-name-1">Name/Reference</label>
+                    <input type="text" id="employee-name-1" value="Director" placeholder="e.g. John (Director)" required>
+                  </div>
+                </div>
+                <div class="column">
+                  <div class="form-group">
+                    <label for="employee-salary-1">Salary (£)</label>
+                    <input type="number" id="employee-salary-1" min="0" step="1" value="50000" required placeholder="e.g. 50000">
+                  </div>
+                </div>
+                <div class="column">
+                  <div class="form-group">
+                    <label for="employee-code-1">Tax Code</label>
+                    <input type="text" id="employee-code-1" value="1257L" placeholder="e.g. 1257L" required>
+                  </div>
+                </div>
+                <div class="column">
+                  <div class="form-group">
+                    <label for="employee-dividend-1">Dividend (£)</label>
+                    <input type="number" id="employee-dividend-1" min="0" step="1" value="0" placeholder="e.g. 10000">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button type="button" id="add-employee-btn" class="btn btn-secondary">Add Family Employee</button>
+
+          <div class="actions">
+            <button type="submit" class="btn btn-primary">Calculate Family Business Tax</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card" id="multi-results" style="display: none;">
+        <div class="card-header">
+          <h2 class="card-title">Family Business Tax Results</h2>
+          <div id="tax-year-display" style="font-size: 0.9rem; color: #666;"></div>
+        </div>
+
+        <div id="employees-results">
+          <!-- Individual employee results will be added here -->
+        </div>
+
+        <div class="family-summary" id="family-summary">
+          <h3 class="section-header">Family Business Summary</h3>
+          <div class="summary-item">
+            <span class="summary-label">Original Company Profit</span>
+            <span class="summary-value" id="original-profit"></span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Total Family Salaries</span>
+            <span class="summary-value" id="total-salaries"></span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Profit After Salaries</span>
+            <span class="summary-value" id="profit-after-salaries"></span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Total Salary CT Saving</span>
+            <span class="summary-value" id="total-salary-ct-saving"></span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Total Employer NI CT Saving</span>
+            <span class="summary-value" id="total-employer-ni-ct-saving"></span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Total CT Saving</span>
+            <span class="summary-value" id="total-ct-saving"></span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Total Income Tax (PAYE)</span>
+            <span class="summary-value" id="total-income-tax"></span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Total Employee NI</span>
+            <span class="summary-value" id="total-employee-ni"></span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Total Employer NI</span>
+            <span class="summary-value" id="total-employer-ni"></span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Total PAYE and NI Costs</span>
+            <span class="summary-value" id="total-paye-ni-costs"></span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Net Family Tax Position</span>
+            <span class="summary-value" id="net-family-position"></span>
+          </div>
+        </div>
+
+        <div id="family-verdict" class="verdict"></div>
+
+        <div class="chart-container">
+          <h3 class="section-header">Cost Breakdown by Family Member</h3>
+          <canvas id="family-chart"></canvas>
+        </div>
+
+        <div class="table-responsive">
+          <table class="results-table" id="family-table">
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>Salary (£)</th>
+                <th>Dividend (£)</th>
+                <th>Salary CT Saving (£)</th>
+                <th>Employer NI CT Saving (£)</th>
+                <th>Total CT Saving (£)</th>
+                <th>Income Tax (£)</th>
+                <th>Dividend Tax (£)</th>
+                <th>Employee NI (£)</th>
+                <th>Employer NI (£)</th>
+                <th>Take Home Pay (£)</th>
+                <th>Total Cost to Company (£)</th>
+                <th>Net Position (£)</th>
+              </tr>
+            </thead>
+            <tbody id="family-table-body">
+              <!-- Results will be inserted here -->
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="calculation-guide" style="margin-top: 30px; padding: 15px; background-color: #f9f9f9; border-radius: 8px; border-left: 4px solid #1e88e5;">
+          <h3 class="section-header">How the Calculations Work</h3>
+          <div style="font-size: 0.95rem;">
+            <p><strong>Take Home Pay</strong> = Gross Salary + Dividend - Income Tax - Dividend Tax - Employee NI</p>
+            <p><strong>Total Cost to Company</strong> = Gross Salary + Dividend + (Employer NI after Allowance) - Corporation Tax Savings</p>
+            <p><strong>Corporation Tax Savings</strong> = (Salary + Employer NI) × Corporation Tax Rate</p>
+            <p><strong>Net Position</strong> = Corporation Tax Savings - (Income Tax + Dividend Tax + Employee NI + Employer NI after Allowance)</p>
+            <p><strong>Employer's Allowance</strong> = Reduction in Employer NI (£5,000 in 2024/25, £10,500 in 2025/26)</p>
+            <p><em>Note: Dividends are paid from post-tax profits, so they don't generate Corporation Tax savings.</em></p>
+            <p><em>Note: The Employer's Allowance is distributed proportionally based on the Employer NI for each employee.</em></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comparison Mode -->
+    <div class="tab-content" id="content-comparison">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Compare Different Salary Levels</h2>
+        </div>
+        <form id="comparison-form">
+          <div class="form-group">
+            <label for="comp-tax-year">Tax Year</label>
+            <select id="comp-tax-year" class="form-control">
+              <option value="2024-25" selected>2024/25</option>
+              <option value="2025-26">2025/26</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="comp-bottom-line-profit">Company Bottom Line Profit (£)</label>
+            <input type="number" id="comp-bottom-line-profit" min="0" step="1" required placeholder="e.g. 100000">
+          </div>
+          
+          <div class="form-group employers-allowance-section" style="padding: 15px; background-color: #f0f8ff; border-radius: 4px; margin-bottom: 20px;">
+            <label>
+              <input type="checkbox" id="comp-use-employers-allowance"> Apply Employer's Allowance
+              <span style="font-size: 0.85rem; color: #666; margin-left: 5px;">
+                (£5,000 for 2024/25, £10,500 for 2025/26)
+              </span>
+            </label>
+            
+            <div id="comp-employers-allowance-details" style="margin-top: 10px; display: none;">
+              <div style="margin-bottom: 10px;">
+                <label for="comp-employers-allowance-amount">Amount to claim (£):</label>
+                <input type="number" id="comp-employers-allowance-amount" min="0" step="100" style="width: 150px; display: inline-block; margin: 0 10px;">
+                <button type="button" id="comp-max-allowance-btn" class="btn btn-secondary btn-small">Maximum</button>
+              </div>
+              <p style="font-size: 0.85rem; color: #666; margin-top: 5px;">
+                Note: If you have other employees outside this calculation, you may want to claim only a portion of the allowance.
+              </p>
+            </div>
+          </div>
+          <div class="column-layout">
+            <div class="column">
+              <div class="form-group">
+                <label for="min-salary">Minimum Salary (£)</label>
+                <input type="number" id="min-salary" min="0" step="1" required placeholder="e.g. 10000">
+              </div>
+            </div>
+            <div class="column">
+              <div class="form-group">
+                <label for="max-salary">Maximum Salary (£)</label>
+                <input type="number" id="max-salary" min="0" step="1" required placeholder="e.g. 100000">
+              </div>
+            </div>
+            <div class="column">
+              <div class="form-group">
+                <label for="salary-step">Step Size (£)</label>
+                <input type="number" id="salary-step" min="1" step="1" value="5000" required>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="comp-dividend">Fixed Dividend Amount (£)</label>
+            <input type="number" id="comp-dividend" min="0" step="1" value="0" placeholder="e.g. 20000">
+          </div>
+          <div class="form-group">
+            <button type="submit" class="btn btn-primary">Run Comparison</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card" id="comparison-results" style="display: none;">
+        <div class="card-header">
+          <h2 class="card-title">Salary Comparison Results</h2>
+          <div id="comp-tax-year-display" style="font-size: 0.9rem; color: #666;"></div>
+        </div>
+        
+        <div class="chart-container">
+          <canvas id="components-chart"></canvas>
+        </div>
+        
+        <div class="chart-container">
+          <canvas id="position-chart"></canvas>
+        </div>
+        
+        <div class="table-responsive">
+          <table class="results-table" id="comparison-table">
+            <thead>
+              <tr>
+                <th>Salary (£)</th>
+                <th>Dividend (£)</th>
+                <th>Salary CT Saving (£)</th>
+                <th>Employer NI CT Saving (£)</th>
+                <th>Total CT Saving (£)</th>
+                <th>Income Tax (£)</th>
+                <th>Dividend Tax (£)</th>
+                <th>Employee NI (£)</th>
+                <th>Employer NI (£)</th>
+                <th>Total Tax Cost (£)</th>
+                <th>Net Position (£)</th>
+              </tr>
+            </thead>
+            <tbody id="comparison-table-body">
+              <!-- Results will be inserted here -->
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="calculation-guide" style="margin-top: 30px; padding: 15px; background-color: #f9f9f9; border-radius: 8px; border-left: 4px solid #1e88e5;">
+          <h3 class="section-header">How the Calculations Work</h3>
+          <div style="font-size: 0.95rem;">
+            <p><strong>Take Home Pay</strong> = Gross Salary + Dividend - Income Tax - Dividend Tax - Employee NI</p>
+            <p><strong>Total Cost to Company</strong> = Gross Salary + Dividend + (Employer NI after Allowance) - Corporation Tax Savings</p>
+            <p><strong>Corporation Tax Savings</strong> = (Salary + Employer NI) × Corporation Tax Rate</p>
+            <p><strong>Net Position</strong> = Corporation Tax Savings - (Income Tax + Dividend Tax + Employee NI + Employer NI after Allowance)</p>
+            <p><strong>Employer's Allowance</strong> = Reduction in Employer NI (£5,000 in 2024/25, £10,500 in 2025/26)</p>
+            <p><em>Note: Dividends are paid from post-tax profits, so they don't generate Corporation Tax savings.</em></p>
+            <p><em>Note: The Employer's Allowance is distributed proportionally based on the Employer NI for each employee.</em></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Global variables
+    var employeeCounter = 2;
+    var familyChart = null;
+    var componentsChart = null;
+    var positionChart = null;
+    
+    // Enable console logging for debugging
+    window.onerror = function(message, source, lineno, colno, error) {
+      console.log("Error: ", message, " at line ", lineno, " column ", colno);
+      alert("An error occurred: " + message + " - Check console for details");
+      return true;
+    };
+    
+    // Utility function to format currency
+    function formatCurrency(amount) {
+      return "£" + amount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+    }
+    
+    // Event listeners when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      // Tab switching
+      var tabs = document.querySelectorAll('.tab');
+      for (var i = 0; i < tabs.length; i++) {
+        tabs[i].addEventListener('click', function() {
+          for (var j = 0; j < tabs.length; j++) {
+            tabs[j].classList.remove('active');
+          }
+          this.classList.add('active');
+          var tabContents = document.querySelectorAll('.tab-content');
+          for (var k = 0; k < tabContents.length; k++) {
+            tabContents[k].classList.remove('active');
+          }
+          var contentId = 'content-' + this.id.split('-')[1];
+          document.getElementById(contentId).classList.add('active');
+        });
+      }
+      
+      // Add Employee button
+      document.getElementById('add-employee-btn').addEventListener('click', function() {
+        addEmployee();
+      });
+      
+      // Family business form submission
+      document.getElementById('multi-employee-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        calculateFamilyTax();
+      });
+      
+      // Comparison form submission
+      document.getElementById('comparison-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        runComparison();
+      });
+      
+      // Employer's Allowance handlers for family section
+      document.getElementById('use-employers-allowance').addEventListener('change', function() {
+        var detailsSection = document.getElementById('employers-allowance-details');
+        detailsSection.style.display = this.checked ? 'block' : 'none';
+        
+        // Set the default maximum value based on the selected tax year
+        if (this.checked) {
+          updateMaxAllowance();
+        }
+      });
+      
+      document.getElementById('max-allowance-btn').addEventListener('click', function() {
+        updateMaxAllowance();
+      });
+      
+      document.getElementById('tax-year').addEventListener('change', function() {
+        if (document.getElementById('use-employers-allowance').checked) {
+          updateMaxAllowance();
+        }
+      });
+      
+      // Employer's Allowance handlers for comparison section
+      document.getElementById('comp-use-employers-allowance').addEventListener('change', function() {
+        var detailsSection = document.getElementById('comp-employers-allowance-details');
+        detailsSection.style.display = this.checked ? 'block' : 'none';
+        
+        // Set the default maximum value based on the selected tax year
+        if (this.checked) {
+          updateCompMaxAllowance();
+        }
+      });
+      
+      document.getElementById('comp-max-allowance-btn').addEventListener('click', function() {
+        updateCompMaxAllowance();
+      });
+      
+      document.getElementById('comp-tax-year').addEventListener('change', function() {
+        if (document.getElementById('comp-use-employers-allowance').checked) {
+          updateCompMaxAllowance();
+        }
+      });
+      
+      // Functions to update the maximum allowance based on tax year
+      function updateMaxAllowance() {
+        var taxYear = document.getElementById('tax-year').value;
+        var maxAllowance = taxYear === '2024-25' ? 5000 : 10500;
+        document.getElementById('employers-allowance-amount').value = maxAllowance;
+      }
+      
+      function updateCompMaxAllowance() {
+        var taxYear = document.getElementById('comp-tax-year').value;
+        var maxAllowance = taxYear === '2024-25' ? 5000 : 10500;
+        document.getElementById('comp-employers-allowance-amount').value = maxAllowance;
+      }
+    });
+    
+    // Add a new employee to the form
+    function addEmployee() {
+      var container = document.getElementById('employees-container');
+      var employeeId = employeeCounter++;
+      var employeeCard = document.createElement('div');
+      employeeCard.className = 'employee-card';
+      employeeCard.setAttribute('data-employee-id', employeeId);
+      employeeCard.innerHTML = 
+        '<div class="employee-header">' +
+          '<div class="employee-title">Family Employee</div>' +
+          '<div class="employee-controls">' +
+            '<button type="button" class="btn btn-danger btn-small" onclick="removeEmployee(' + employeeId + ')">Remove</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="column-layout">' +
+          '<div class="column">' +
+            '<div class="form-group">' +
+              '<label for="employee-name-' + employeeId + '">Name/Reference</label>' +
+              '<input type="text" id="employee-name-' + employeeId + '" placeholder="e.g. Spouse/Child" required>' +
+            '</div>' +
+          '</div>' +
+          '<div class="column">' +
+            '<div class="form-group">' +
+              '<label for="employee-salary-' + employeeId + '">Salary (£)</label>' +
+              '<input type="number" id="employee-salary-' + employeeId + '" min="0" step="1" placeholder="e.g. 25000" required>' +
+            '</div>' +
+          '</div>' +
+          '<div class="column">' +
+            '<div class="form-group">' +
+              '<label for="employee-code-' + employeeId + '">Tax Code</label>' +
+              '<input type="text" id="employee-code-' + employeeId + '" value="1257L" placeholder="e.g. 1257L" required>' +
+            '</div>' +
+          '</div>' +
+          '<div class="column">' +
+            '<div class="form-group">' +
+              '<label for="employee-dividend-' + employeeId + '">Dividend (£)</label>' +
+              '<input type="number" id="employee-dividend-' + employeeId + '" min="0" step="1" value="0" placeholder="e.g. 10000">' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      container.appendChild(employeeCard);
+    }
+    
+    // Remove an employee from the form
+    function removeEmployee(employeeId) {
+      var employeeCard = document.querySelector('.employee-card[data-employee-id="' + employeeId + '"]');
+      if (employeeCard) {
+        employeeCard.parentNode.removeChild(employeeCard);
+      }
+    }
+    
+    // Get employee data from the form
+    function getEmployees() {
+      var employees = [];
+      var employeeCards = document.querySelectorAll('.employee-card');
+      for (var i = 0; i < employeeCards.length; i++) {
+        var card = employeeCards[i];
+        var id = card.getAttribute('data-employee-id');
+        var name = document.getElementById('employee-name-' + id).value;
+        var salary = parseFloat(document.getElementById('employee-salary-' + id).value);
+        var taxCode = document.getElementById('employee-code-' + id).value;
+        var dividend = parseFloat(document.getElementById('employee-dividend-' + id).value) || 0;
+        if (name && !isNaN(salary)) {
+          employees.push({
+            id: id,
+            name: name,
+            salary: salary,
+            taxCode: taxCode,
+            dividend: dividend
+          });
+        }
+      }
+      return employees;
+    }
+    
+    // Calculate tax for a single employee
+    function calculateTax(bottomLineProfit, salary, taxCode, dividend, taxYear, employersAllowance) {
+      // Ensure dividend is a number
+      dividend = parseFloat(dividend) || 0;
+      taxCode = taxCode || "1257L";
+      taxYear = taxYear || "2024-25"; // Default to 2024-25 if not specified
+      
+      // Define tax parameters for different years
+      var taxParameters = {
+        "2024-25": {
+          personalAllowance: 12570,
+          corpTaxRate: 0.25,
+          basicRateThreshold: 50270,
+          higherRateThreshold: 125140,
+          basicRate: 0.20,
+          higherRate: 0.40,
+          additionalRate: 0.45,
+          dividendAllowance: 500,
+          dividendBasicRate: 0.085, // 8.5%
+          dividendHigherRate: 0.335, // 33.5%
+          dividendAdditionalRate: 0.393, // 39.3%
+          primaryThreshold: 12570,
+          upperEarningsLimit: 50270,
+          niEmployeeRate1: 0.08,
+          niEmployeeRate2: 0.02,
+          secondaryThreshold: 9100,
+          niEmployerRate: 0.138
+        },
+        "2025-26": {
+          personalAllowance: 12570, // checked
+          corpTaxRate: 0.25, // checked
+          basicRateThreshold: 50270, // checked
+          higherRateThreshold: 125140, // checked
+          basicRate: 0.20, // checked 
+          higherRate: 0.40, // checked
+          additionalRate: 0.45, // checked
+          dividendAllowance: 500, // checked
+          dividendBasicRate: 0.085, // Assumed to remain the same
+          dividendHigherRate: 0.335, // Assumed to remain the same
+          dividendAdditionalRate: 0.393, // Assumed to remain the same
+          primaryThreshold: 12570, // Assumed to remain the same
+          upperEarningsLimit: 54000, // Increased to match basic rate threshold
+          niEmployeeRate1: 0.08, // 8%
+          niEmployeeRate2: 0.02, // 2%
+          secondaryThreshold: 5000, // reduced for 2025/26
+          niEmployerRate: 0.15 // increased from 13.8% to 15% in 2025/26
+        }
+      };
+      
+      // Get the tax parameters for the selected year
+      var params = taxParameters[taxYear];
+      var personalAllowance = params.personalAllowance;
+      
+      // Adjust personal allowance based on tax code
+      if (taxCode) {
+        if (taxCode.indexOf('K') === 0) {
+          personalAllowance = -parseInt(taxCode.substring(1), 10) * 10;
+        } else {
+          var matches = taxCode.match(/\d+/);
+          var numPart = matches ? parseInt(matches[0], 10) : 1257;
+          personalAllowance = numPart * 10;
+        }
+      }
+      
+      // Get tax rates and thresholds for the selected year
+      var corpTaxRate = params.corpTaxRate;
+      var basicRateThreshold = params.basicRateThreshold;
+      var higherRateThreshold = params.higherRateThreshold;
+      var basicRate = params.basicRate;
+      var higherRate = params.higherRate;
+      var additionalRate = params.additionalRate;
+      var dividendAllowance = params.dividendAllowance;
+      var dividendBasicRate = params.dividendBasicRate;
+      var dividendHigherRate = params.dividendHigherRate;
+      var dividendAdditionalRate = params.dividendAdditionalRate;
+      var primaryThreshold = params.primaryThreshold;
+      var upperEarningsLimit = params.upperEarningsLimit;
+      var niEmployeeRate1 = params.niEmployeeRate1;
+      var niEmployeeRate2 = params.niEmployeeRate2;
+      var secondaryThreshold = params.secondaryThreshold;
+      var niEmployerRate = params.niEmployerRate;
+      
+      // Corporation Tax saving calculation including Employer NI
+      // First, compute Employer NI
+      var employerNi = 0;
+      var employerNiBeforeAllowance = 0;
+      
+      if (salary > secondaryThreshold) {
+        employerNiBeforeAllowance = (salary - secondaryThreshold) * niEmployerRate;
+        employerNi = employerNiBeforeAllowance;
+        
+        // Apply employer's allowance if provided
+        if (employersAllowance && employersAllowance > 0) {
+          employerNi = Math.max(0, employerNiBeforeAllowance - employersAllowance);
+        }
+      }
+      
+      // Only salary and employer NI are deductible expenses
+      var deductibleExpenses = salary + employerNi;
+      
+      // Dividend is not a deductible expense for CT
+      var profitBeforeExpenses = bottomLineProfit + deductibleExpenses;
+      var corpTaxBeforeExpenses = profitBeforeExpenses * corpTaxRate;
+      var profitAfterSalaryExpenses = bottomLineProfit;
+      var corpTaxAfterExpenses = profitAfterSalaryExpenses * corpTaxRate;
+      
+      // Dividends come from post-tax profit
+      var profitAfterExpenses = profitAfterSalaryExpenses - dividend;
+      
+      // Split saving into salary and Employer NI portions only
+      // Note: Dividends don't provide CT savings as they're paid from post-tax profits
+      var salaryCorpTaxSaving = salary * corpTaxRate;
+      var employerNICorpTaxSaving = employerNi * corpTaxRate;
+      var dividendCorpTaxSaving = 0; // No CT saving for dividends
+      var totalCorpTaxSaving = salaryCorpTaxSaving + employerNICorpTaxSaving; // Dividends excluded
+      
+      // Income Tax (PAYE)
+      var adjustedPersonalAllowance = personalAllowance;
+      // Calculate adjusted personal allowance based on all income (salary + dividend)
+      var totalIncome = salary + dividend;
+      if (totalIncome > 100000) {
+        var allowanceReduction = Math.min((totalIncome - 100000) / 2, personalAllowance);
+        adjustedPersonalAllowance = personalAllowance - allowanceReduction;
+      }
+      if (taxCode.indexOf('K') !== 0 && adjustedPersonalAllowance < 0) {
+        adjustedPersonalAllowance = 0;
+      }
+      
+      // Income tax on salary
+      var remainingAllowance = adjustedPersonalAllowance;
+      var salaryTaxableIncome = Math.max(salary - remainingAllowance, 0);
+      remainingAllowance = Math.max(remainingAllowance - salary, 0);
+      
+      var incomeTax = 0;
+      if (salaryTaxableIncome > 0) {
+        var basicRateBand = Math.min(salaryTaxableIncome, basicRateThreshold - 12570);
+        incomeTax += basicRateBand * basicRate;
+        if (salaryTaxableIncome > (basicRateThreshold - 12570)) {
+          var higherRateBand = Math.min(salaryTaxableIncome - (basicRateThreshold - 12570), higherRateThreshold - basicRateThreshold);
+          incomeTax += higherRateBand * higherRate;
+          if (salaryTaxableIncome > (higherRateThreshold - 12570)) {
+            var additionalRateBand = salaryTaxableIncome - (higherRateThreshold - 12570);
+            incomeTax += additionalRateBand * additionalRate;
+          }
+        }
+      }
+      
+      // Dividend tax calculation
+      var dividendTax = 0;
+      var dividendTaxableIncome = Math.max(dividend - remainingAllowance, 0);
+      
+      // Calculate tax bands based on where dividends fall in the income scale
+      console.log("Calculating dividend tax. Salary taxable income:", salaryTaxableIncome, "Dividend taxable income:", dividendTaxableIncome);
+      
+      var totalTaxableIncome = salaryTaxableIncome + dividendTaxableIncome;
+      var basicRateUsed = Math.min(salaryTaxableIncome, basicRateThreshold - 12570);
+      var basicRateRemaining = Math.max((basicRateThreshold - 12570) - basicRateUsed, 0);
+      
+      console.log("Basic rate band used by salary:", basicRateUsed, "Basic rate remaining:", basicRateRemaining);
+      
+      // Apply dividend allowance (only if there are dividends to tax)
+      if (dividendTaxableIncome > 0) {
+        // The dividend allowance is separate from personal allowance and always applies
+        var effectiveDividendAllowance = dividendAllowance;
+        console.log("Dividend allowance:", effectiveDividendAllowance);
+        
+        var dividendAfterAllowance = Math.max(dividendTaxableIncome - effectiveDividendAllowance, 0);
+        console.log("Dividend after allowance:", dividendAfterAllowance);
+        
+        if (dividendAfterAllowance > 0) {
+          // Basic rate dividend tax
+          var dividendBasicBand = Math.min(dividendAfterAllowance, basicRateRemaining);
+          dividendTax += dividendBasicBand * dividendBasicRate;
+          console.log("Dividend basic band:", dividendBasicBand, "Tax:", dividendBasicBand * dividendBasicRate);
+          
+          // Higher rate dividend tax
+          if (totalTaxableIncome > (basicRateThreshold - 12570)) {
+            var higherRateUsed = Math.min(
+              salaryTaxableIncome > (basicRateThreshold - 12570) ? 
+                salaryTaxableIncome - (basicRateThreshold - 12570) : 0, 
+              higherRateThreshold - basicRateThreshold
+            );
+            var higherRateRemaining = Math.max((higherRateThreshold - basicRateThreshold) - higherRateUsed, 0);
+            var dividendHigherBand = Math.min(
+              dividendAfterAllowance - dividendBasicBand,
+              higherRateRemaining
+            );
+            
+            console.log("Higher rate band used by salary:", higherRateUsed, "Higher rate remaining:", higherRateRemaining);
+            console.log("Dividend higher band:", dividendHigherBand, "Tax:", dividendHigherBand * dividendHigherRate);
+            
+            dividendTax += dividendHigherBand * dividendHigherRate;
+            
+            // Additional rate dividend tax
+            if (totalTaxableIncome > (higherRateThreshold - 12570)) {
+              var dividendAdditionalBand = Math.max(dividendAfterAllowance - dividendBasicBand - dividendHigherBand, 0);
+              console.log("Dividend additional band:", dividendAdditionalBand, "Tax:", dividendAdditionalBand * dividendAdditionalRate);
+              dividendTax += dividendAdditionalBand * dividendAdditionalRate;
+            }
+          }
+        }
+      }
+      
+      console.log("Final dividend tax:", dividendTax);
+      
+      // Employee National Insurance (only on salary, not dividends)
+      var employeeNi = 0;
+      if (salary > primaryThreshold) {
+        var niBand1 = Math.min(salary, upperEarningsLimit) - primaryThreshold;
+        employeeNi += niBand1 * niEmployeeRate1;
+        if (salary > upperEarningsLimit) {
+          var niBand2 = salary - upperEarningsLimit;
+          employeeNi += niBand2 * niEmployeeRate2;
+        }
+      }
+      
+      // Total tax costs (includes Income Tax, Dividend Tax, Employee NI, and Employer NI)
+      var totalTaxCosts = incomeTax + dividendTax + employeeNi + employerNi;
+      
+      return {
+        company: {
+          profitBeforeExpenses: profitBeforeExpenses,
+          salary: salary,
+          dividend: dividend,
+          profitAfterSalaryExpenses: profitAfterSalaryExpenses,
+          profitAfterAllExpenses: profitAfterExpenses,
+          corpTaxBeforeExpenses: corpTaxBeforeExpenses,
+          corpTaxAfterExpenses: corpTaxAfterExpenses,
+          totalCorpTaxSaving: totalCorpTaxSaving
+        },
+        employee: {
+          grossSalary: salary,
+          dividend: dividend,
+          totalIncome: totalIncome,
+          taxCode: taxCode,
+          personalAllowance: adjustedPersonalAllowance,
+          salaryTaxableIncome: salaryTaxableIncome,
+          dividendTaxableIncome: dividendTaxableIncome,
+          incomeTax: incomeTax,
+          dividendTax: dividendTax,
+          employeeNi: employeeNi
+        },
+        employer: {
+          employerNi: employerNi,
+          employerNICorpTaxSaving: employerNICorpTaxSaving
+        },
+        summary: {
+          salaryCorpTaxSaving: salaryCorpTaxSaving,
+          dividendCorpTaxSaving: dividendCorpTaxSaving, // Always 0
+          totalCorpTaxSaving: totalCorpTaxSaving,
+          totalTaxCosts: totalTaxCosts,
+          netTaxPosition: totalCorpTaxSaving - totalTaxCosts
+        }
+      };
+    }
+    
+    // Calculate tax for all family members
+    function calculateFamilyTax() {
+      console.log("calculateFamilyTax called");
+      var companyProfit = parseFloat(document.getElementById('company-profit').value);
+      var taxYear = document.getElementById('tax-year').value;
+      console.log("Company profit:", companyProfit, "Tax year:", taxYear);
+      
+      if (isNaN(companyProfit)) {
+        alert('Please enter a valid company profit');
+        return;
+      }
+      var employees = getEmployees();
+      console.log("Employees:", employees);
+      if (employees.length === 0) {
+        alert('Please add at least one employee');
+        return;
+      }
+      
+      // Check if employer's allowance is being used
+      var usingEmployersAllowance = document.getElementById('use-employers-allowance').checked;
+      var employersAllowanceTotal = 0;
+      
+      if (usingEmployersAllowance) {
+        // Get the total allowance amount
+        employersAllowanceTotal = parseFloat(document.getElementById('employers-allowance-amount').value) || 0;
+        console.log("Using Employer's Allowance: £" + employersAllowanceTotal);
+        
+        // Get the maximum allowance for validation
+        var maxAllowance = taxYear === '2024-25' ? 5000 : 10500;
+        
+        // Ensure the allowance doesn't exceed the maximum
+        if (employersAllowanceTotal > maxAllowance) {
+          employersAllowanceTotal = maxAllowance;
+          document.getElementById('employers-allowance-amount').value = maxAllowance;
+          console.log("Capped Employer's Allowance to maximum: £" + maxAllowance);
+        }
+      }
+      var originalProfit = companyProfit;
+      for (var i = 0; i < employees.length; i++) {
+        originalProfit += employees[i].salary + (employees[i].dividend || 0);
+        console.log("Adding to original profit:", employees[i].salary, "+", (employees[i].dividend || 0));
+      }
+      console.log("Original profit calculated:", originalProfit);
+      
+      // Initialize variables for totals
+      var individualResults = [];
+      var totalSalaries = 0;
+      var totalDividends = 0;
+      var totalIncomeTax = 0;
+      var totalDividendTax = 0;
+      var totalEmployeeNi = 0;
+      var totalEmployerNi = 0;
+      var totalTaxCosts = 0;
+      var netFamilyPosition = 0;
+      var totalSalaryCTSaving = 0;
+      var totalDividendCTSaving = 0;
+      var totalEmployerNICtSaving = 0;
+      var totalCTSaving = 0;
+      
+      console.log("Variables initialized");
+      
+      // First, if using employer's allowance, calculate the total potential employer NI
+      // to distribute the allowance proportionally
+      var totalPotentialEmployerNI = 0;
+      var employerNiByEmployee = [];
+      
+      if (usingEmployersAllowance && employersAllowanceTotal > 0) {
+        // Calculate potential employer NI for each employee
+        for (var i = 0; i < employees.length; i++) {
+          var employee = employees[i];
+          var secondaryThreshold = taxYear === '2024-25' ? 9100 : 9100; // Adjust if threshold changes in 2025/26
+          var niEmployerRate = 0.138;
+          
+          var potentialEmployerNi = 0;
+          if (employee.salary > secondaryThreshold) {
+            potentialEmployerNi = (employee.salary - secondaryThreshold) * niEmployerRate;
+          }
+          
+          employerNiByEmployee.push(potentialEmployerNi);
+          totalPotentialEmployerNI += potentialEmployerNi;
+        }
+        
+        console.log("Total potential Employer NI: £" + totalPotentialEmployerNI.toFixed(2));
+      }
+      
+      for (var i = 0; i < employees.length; i++) {
+        var employee = employees[i];
+        console.log("Processing employee:", employee.name, "Salary:", employee.salary, "Dividend:", employee.dividend);
+        
+        // Calculate employer's allowance for this employee
+        var employeeAllowance = 0;
+        
+        if (usingEmployersAllowance && employersAllowanceTotal > 0 && totalPotentialEmployerNI > 0) {
+          // Distribute allowance proportionally based on employer NI contribution
+          var proportion = employerNiByEmployee[i] / totalPotentialEmployerNI;
+          employeeAllowance = Math.min(employerNiByEmployee[i], employersAllowanceTotal * proportion);
+          console.log(employee.name + " gets £" + employeeAllowance.toFixed(2) + " of Employer's Allowance");
+        }
+        
+        try {
+          var result = calculateTax(companyProfit, employee.salary, employee.taxCode, employee.dividend, taxYear, employeeAllowance);
+          console.log("Result for", employee.name, ":", result);
+          
+          result.name = employee.name;
+          individualResults.push(result);
+          totalSalaries += result.employee.grossSalary;
+          totalDividends += result.employee.dividend;
+          totalIncomeTax += result.employee.incomeTax;
+          totalDividendTax += result.employee.dividendTax;
+          totalEmployeeNi += result.employee.employeeNi;
+          totalEmployerNi += result.employer.employerNi;
+          totalTaxCosts += result.summary.totalTaxCosts;
+          netFamilyPosition += result.summary.netTaxPosition;
+          totalSalaryCTSaving += result.summary.salaryCorpTaxSaving;
+          totalDividendCTSaving += result.summary.dividendCorpTaxSaving || 0;
+          totalEmployerNICtSaving += result.employer.employerNICorpTaxSaving;
+          totalCTSaving += result.summary.totalCorpTaxSaving;
+        } catch (error) {
+          console.error("Error processing employee:", employee.name, error);
+          alert("Error processing employee: " + employee.name + ". See console for details.");
+          return;
+        }
+      }
+      
+      // Update the family summary section
+      document.getElementById('original-profit').textContent = formatCurrency(originalProfit);
+      document.getElementById('total-salaries').textContent = formatCurrency(totalSalaries);
+      
+      // Update or add the total dividends element
+      try {
+        console.log("Updating total dividends summary");
+        var totalDividendsElement = document.getElementById('total-dividends');
+        if (!totalDividendsElement) {
+          // If it doesn't exist, add it after total salaries
+          var totalSalariesItem = document.getElementById('total-salaries').parentNode.parentNode;
+          if (totalSalariesItem) {
+            var newItem = document.createElement('div');
+            newItem.className = 'summary-item';
+            newItem.innerHTML = '<span class="summary-label">Total Family Dividends</span>' +
+                             '<span class="summary-value" id="total-dividends">' + formatCurrency(totalDividends) + '</span>';
+            totalSalariesItem.parentNode.insertBefore(newItem, totalSalariesItem.nextSibling);
+            console.log("Added total dividends element");
+          } else {
+            console.error("Could not find total-salaries element parent");
+          }
+        } else {
+          totalDividendsElement.textContent = formatCurrency(totalDividends);
+          console.log("Updated existing total dividends element");
+        }
+      } catch (error) {
+        console.error("Error updating total dividends:", error);
+      }
+      
+      document.getElementById('profit-after-salaries').textContent = formatCurrency(companyProfit);
+      document.getElementById('total-salary-ct-saving').textContent = formatCurrency(totalSalaryCTSaving);
+      
+      // Update or add the dividend CT saving element
+      try {
+        console.log("Updating dividend CT saving summary");
+        var dividendCTSavingElement = document.getElementById('total-dividend-ct-saving');
+        if (!dividendCTSavingElement) {
+          // If it doesn't exist, add it after salary CT saving
+          var salaryCTSavingItem = document.getElementById('total-salary-ct-saving').parentNode.parentNode;
+          if (salaryCTSavingItem) {
+            var newItem = document.createElement('div');
+            newItem.className = 'summary-item';
+            newItem.innerHTML = '<span class="summary-label">Total Post-Tax Dividends</span>' +
+                              '<span class="summary-value" id="total-dividend-ct-saving">' + formatCurrency(totalDividends) + '</span>';
+            salaryCTSavingItem.parentNode.insertBefore(newItem, salaryCTSavingItem.nextSibling);
+            console.log("Added dividend CT saving element");
+          } else {
+            console.error("Could not find total-salary-ct-saving element parent");
+          }
+        } else {
+          dividendCTSavingElement.textContent = formatCurrency(totalDividendCTSaving);
+          console.log("Updated existing dividend CT saving element");
+        }
+      } catch (error) {
+        console.error("Error updating dividend CT saving:", error);
+      }
+      
+      document.getElementById('total-employer-ni-ct-saving').textContent = formatCurrency(totalEmployerNICtSaving);
+      document.getElementById('total-ct-saving').textContent = formatCurrency(totalCTSaving);
+      document.getElementById('total-income-tax').textContent = formatCurrency(totalIncomeTax);
+      
+      // Update or add the dividend tax element
+      try {
+        console.log("Updating dividend tax summary");
+        var dividendTaxElement = document.getElementById('total-dividend-tax');
+        if (!dividendTaxElement) {
+          // If it doesn't exist, add it after income tax
+          var incomeTaxItem = document.getElementById('total-income-tax').parentNode.parentNode;
+          if (incomeTaxItem) {
+            var newItem = document.createElement('div');
+            newItem.className = 'summary-item';
+            newItem.innerHTML = '<span class="summary-label">Total Dividend Tax</span>' +
+                              '<span class="summary-value" id="total-dividend-tax">' + formatCurrency(totalDividendTax) + '</span>';
+            incomeTaxItem.parentNode.insertBefore(newItem, incomeTaxItem.nextSibling);
+            console.log("Added dividend tax element");
+          } else {
+            console.error("Could not find total-income-tax element parent");
+          }
+        } else {
+          dividendTaxElement.textContent = formatCurrency(totalDividendTax);
+          console.log("Updated existing dividend tax element");
+        }
+      } catch (error) {
+        console.error("Error updating dividend tax:", error);
+      }
+      
+      document.getElementById('total-employee-ni').textContent = formatCurrency(totalEmployeeNi);
+      document.getElementById('total-employer-ni').textContent = formatCurrency(totalEmployerNi);
+      
+      // Update the label for total costs to include dividend tax
+      var totalCostsLabels = document.querySelectorAll('span.summary-label');
+      for (var i = 0; i < totalCostsLabels.length; i++) {
+        if (totalCostsLabels[i].textContent === 'Total PAYE and NI Costs') {
+          totalCostsLabels[i].textContent = 'Total Tax Costs (PAYE, Dividend, NI)';
+          break;
+        }
+      }
+      document.getElementById('total-paye-ni-costs').textContent = formatCurrency(totalTaxCosts);
+      document.getElementById('net-family-position').textContent = formatCurrency(netFamilyPosition);
+      
+      var verdictEl = document.getElementById('family-verdict');
+      if (netFamilyPosition > 0) {
+        verdictEl.textContent = 'VERDICT: Overall tax benefit from family remuneration strategy';
+        verdictEl.className = 'verdict positive';
+      } else {
+        verdictEl.textContent = 'VERDICT: Overall tax cost from family remuneration strategy';
+        verdictEl.className = 'verdict negative';
+      }
+      
+      try {
+        console.log("Updating family table");
+        var tableBody = document.getElementById('family-table-body');
+        if (!tableBody) {
+          console.error("Could not find family-table-body element");
+          return;
+        }
+        
+        tableBody.innerHTML = '';
+        for (var j = 0; j < individualResults.length; j++) {
+          var result = individualResults[j];
+          console.log("Adding row for", result.name);
+          
+          // Calculate take-home pay if not already calculated in chart creation
+          if (!result.calculatedTakeHome) {
+            var takeHomePay = result.employee.grossSalary - result.employee.incomeTax - result.employee.employeeNi;
+            var takeHomeDividend = result.employee.dividend - result.employee.dividendTax;
+            result.calculatedTakeHome = takeHomePay + takeHomeDividend;
+          }
+          
+          // Calculate total cost to company if not already calculated in chart creation
+          if (!result.calculatedTotalCost) {
+            result.calculatedTotalCost = result.employee.grossSalary + result.employee.dividend + result.employer.employerNi - result.summary.totalCorpTaxSaving;
+          }
+          
+          var tr = document.createElement('tr');
+          tr.innerHTML =
+            '<td>' + result.name + '</td>' +
+            '<td>' + formatCurrency(result.employee.grossSalary) + '</td>' +
+            '<td>' + formatCurrency(result.employee.dividend) + '</td>' +
+            '<td>' + formatCurrency(result.summary.salaryCorpTaxSaving) + '</td>' +
+            '<td>' + formatCurrency(result.employer.employerNICorpTaxSaving) + '</td>' +
+            '<td>' + formatCurrency(result.summary.totalCorpTaxSaving) + '</td>' +
+            '<td>' + formatCurrency(result.employee.incomeTax) + '</td>' +
+            '<td>' + formatCurrency(result.employee.dividendTax || 0) + '</td>' +
+            '<td>' + formatCurrency(result.employee.employeeNi) + '</td>' +
+            '<td>' + formatCurrency(result.employer.employerNi) + '</td>' +
+            '<td>' + formatCurrency(result.calculatedTakeHome) + '</td>' +
+            '<td>' + formatCurrency(result.calculatedTotalCost) + '</td>' +
+            '<td>' + formatCurrency(result.summary.netTaxPosition) + '</td>';
+          tableBody.appendChild(tr);
+        }
+        console.log("Added", individualResults.length, "rows to family table");
+      } catch (error) {
+        console.error("Error updating family table:", error);
+      }
+      try {
+        console.log("Adding total row to family table");
+        // Calculate total take home pay and total cost
+        var totalTakeHome = 0;
+        var totalCostToCompany = 0;
+        
+        for (var i = 0; i < individualResults.length; i++) {
+          totalTakeHome += individualResults[i].calculatedTakeHome;
+          totalCostToCompany += individualResults[i].calculatedTotalCost;
+        }
+        
+        var totalRow = document.createElement('tr');
+        totalRow.className = 'total-row';
+        totalRow.innerHTML =
+          '<td>FAMILY TOTAL</td>' +
+          '<td>' + formatCurrency(totalSalaries) + '</td>' +
+          '<td>' + formatCurrency(totalDividends) + '</td>' +
+          '<td>' + formatCurrency(totalSalaryCTSaving) + '</td>' +
+          '<td>' + formatCurrency(totalEmployerNICtSaving) + '</td>' +
+          '<td>' + formatCurrency(totalCTSaving) + '</td>' +
+          '<td>' + formatCurrency(totalIncomeTax) + '</td>' +
+          '<td>' + formatCurrency(totalDividendTax || 0) + '</td>' +
+          '<td>' + formatCurrency(totalEmployeeNi) + '</td>' +
+          '<td>' + formatCurrency(totalEmployerNi) + '</td>' +
+          '<td>' + formatCurrency(totalTakeHome) + '</td>' +
+          '<td>' + formatCurrency(totalCostToCompany) + '</td>' +
+          '<td>' + formatCurrency(netFamilyPosition) + '</td>';
+        tableBody.appendChild(totalRow);
+        console.log("Added total row to family table");
+      } catch (error) {
+        console.error("Error adding total row:", error);
+      }
+      
+      try {
+        console.log("Creating family chart with", individualResults.length, "results");
+        createFamilyChart(individualResults);
+        
+        // Display the tax year
+        var taxYearElement = document.getElementById('tax-year-display');
+        var taxYear = document.getElementById('tax-year').value;
+        taxYearElement.textContent = "Tax Year: " + taxYear.replace("-", "/");
+        
+        document.getElementById('multi-results').style.display = 'block';
+        console.log("Calculation complete, displayed results");
+      } catch (error) {
+        console.error("Error creating chart or displaying results:", error);
+        alert("An error occurred in the final step. Check console for details.");
+      }
+    }
+    
+    
+    function createFamilyChart(results) {
+      var ctx = document.getElementById('family-chart').getContext('2d');
+      if (familyChart) {
+        familyChart.destroy();
+      }
+      var labels = [];
+      var takeHomePays = [];
+      var incomeTaxes = [];
+      var dividendTaxes = [];
+      var employeeNis = [];
+      var employerNis = [];
+      var totalCosts = [];
+      var ctSavings = [];
+      
+      for (var i = 0; i < results.length; i++) {
+        var result = results[i];
+        labels.push(result.name);
+        
+        // Calculate take-home pay
+        var takeHomePay = result.employee.grossSalary - result.employee.incomeTax - result.employee.employeeNi;
+        var takeHomeDividend = result.employee.dividend - result.employee.dividendTax;
+        var totalTakeHome = takeHomePay + takeHomeDividend;
+        
+        // Calculate total cost to company (subtract CT savings)
+        var totalCost = result.employee.grossSalary + result.employee.dividend + result.employer.employerNi - result.summary.totalCorpTaxSaving;
+        
+        // Track all the components
+        takeHomePays.push(totalTakeHome);
+        incomeTaxes.push(result.employee.incomeTax);
+        dividendTaxes.push(result.employee.dividendTax);
+        employeeNis.push(result.employee.employeeNi);
+        employerNis.push(result.employer.employerNi);
+        totalCosts.push(totalCost);
+        ctSavings.push(-result.summary.totalCorpTaxSaving); // Showing as a negative to visualize the reduction in cost
+        
+        // Store the calculated values in the result object for table use
+        result.calculatedTakeHome = totalTakeHome;
+        result.calculatedTotalCost = totalCost;
+      }
+      
+      familyChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Take Home Pay',
+              data: takeHomePays,
+              backgroundColor: 'rgba(75, 192, 192, 0.7)',
+              borderColor: 'rgba(75, 192, 192, 1)',
+              borderWidth: 1,
+              stack: 'Breakdown'
+            },
+            {
+              label: 'Income Tax (PAYE)',
+              data: incomeTaxes,
+              backgroundColor: 'rgba(255, 159, 64, 0.7)',
+              borderColor: 'rgba(255, 159, 64, 1)',
+              borderWidth: 1,
+              stack: 'Breakdown'
+            },
+            {
+              label: 'Dividend Tax',
+              data: dividendTaxes,
+              backgroundColor: 'rgba(241, 196, 15, 0.7)',
+              borderColor: 'rgba(241, 196, 15, 1)',
+              borderWidth: 1,
+              stack: 'Breakdown'
+            },
+            {
+              label: 'Employee NI',
+              data: employeeNis,
+              backgroundColor: 'rgba(52, 152, 219, 0.7)',
+              borderColor: 'rgba(52, 152, 219, 1)',
+              borderWidth: 1,
+              stack: 'Breakdown'
+            },
+            {
+              label: 'Employer NI',
+              data: employerNis,
+              backgroundColor: 'rgba(231, 76, 60, 0.7)',
+              borderColor: 'rgba(231, 76, 60, 1)',
+              borderWidth: 1,
+              stack: 'Breakdown'
+            },
+            {
+              label: 'CT Saving',
+              data: ctSavings,
+              backgroundColor: 'rgba(153, 102, 255, 0.7)',
+              borderColor: 'rgba(153, 102, 255, 1)',
+              borderWidth: 1,
+              stack: 'Breakdown'
+            },
+            {
+              label: 'Total Cost to Company',
+              data: totalCosts,
+              type: 'line',
+              backgroundColor: 'rgba(0, 0, 0, 0)',
+              borderColor: 'rgba(0, 0, 0, 0.7)',
+              borderWidth: 2,
+              pointRadius: 5,
+              pointHoverRadius: 7
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              stacked: true,
+              title: { display: true, text: 'Family Members' }
+            },
+            y: {
+              stacked: true,
+              title: { display: true, text: 'Amount (£)' }
+            }
+          },
+          plugins: {
+            title: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  var label = context.dataset.label || '';
+                  var value = context.raw || 0;
+                  return label + ': ' + formatCurrency(value);
+                }
+              }
+            },
+            legend: {
+              display: true,
+              position: 'bottom',
+              labels: {
+                boxWidth: 12,
+                padding: 15
+              }
+            }
+          }
+        }
+      });
+    }
+    
+    // Run comparison for different salary levels
+    function runComparison() {
+      var bottomLineProfit = parseFloat(document.getElementById('comp-bottom-line-profit').value);
+      var minSalary = parseFloat(document.getElementById('min-salary').value);
+      var maxSalary = parseFloat(document.getElementById('max-salary').value);
+      var step = parseFloat(document.getElementById('salary-step').value);
+      var taxYear = document.getElementById('comp-tax-year').value;
+      
+      if (isNaN(bottomLineProfit) || isNaN(minSalary) || isNaN(maxSalary) || isNaN(step)) {
+        alert('Please enter valid numbers for all fields');
+        return;
+      }
+      
+      // Check if employer's allowance is being used
+      var usingEmployersAllowance = document.getElementById('comp-use-employers-allowance').checked;
+      var employersAllowanceTotal = 0;
+      
+      if (usingEmployersAllowance) {
+        // Get the total allowance amount
+        employersAllowanceTotal = parseFloat(document.getElementById('comp-employers-allowance-amount').value) || 0;
+        console.log("Using Employer's Allowance: £" + employersAllowanceTotal);
+        
+        // Get the maximum allowance for validation
+        var maxAllowance = taxYear === '2024-25' ? 5000 : 10500;
+        
+        // Ensure the allowance doesn't exceed the maximum
+        if (employersAllowanceTotal > maxAllowance) {
+          employersAllowanceTotal = maxAllowance;
+          document.getElementById('comp-employers-allowance-amount').value = maxAllowance;
+          console.log("Capped Employer's Allowance to maximum: £" + maxAllowance);
+        }
+      }
+      
+      if (minSalary >= maxSalary) {
+        alert('Maximum salary must be greater than minimum salary');
+        return;
+      }
+      
+      if (step <= 0) {
+        alert('Step size must be greater than zero');
+        return;
+      }
+      
+      // Check if we have a dividend input field, and if so, get the value
+      var dividendInput = document.getElementById('comp-dividend');
+      var dividend = 0;
+      if (dividendInput) {
+        dividend = parseFloat(dividendInput.value) || 0;
+      }
+      
+      // First, if using employer's allowance, calculate the total potential employer NI
+      // for all salary levels to distribute the allowance properly
+      var totalPotentialEmployerNI = 0;
+      var potentialNiByLevel = [];
+      var salaryLevels = [];
+      
+      // First collect all the salary levels we'll be calculating
+      for (var salary = minSalary; salary <= maxSalary; salary += step) {
+        salaryLevels.push(salary);
+      }
+      
+      if (usingEmployersAllowance && employersAllowanceTotal > 0) {
+        // Calculate potential employer NI for each salary level
+        var secondaryThreshold = taxYear === '2024-25' ? 9100 : 9100; // Adjust if threshold changes in 2025/26
+        var niEmployerRate = 0.138;
+        
+        for (var i = 0; i < salaryLevels.length; i++) {
+          var salary = salaryLevels[i];
+          var potentialEmployerNi = 0;
+          
+          if (salary > secondaryThreshold) {
+            potentialEmployerNi = (salary - secondaryThreshold) * niEmployerRate;
+          }
+          
+          potentialNiByLevel.push(potentialEmployerNi);
+          totalPotentialEmployerNI += potentialEmployerNi;
+        }
+        
+        console.log("Total potential Employer NI across all salary levels: £" + totalPotentialEmployerNI.toFixed(2));
+      }
+      
+      var data = [];
+      for (var i = 0; i < salaryLevels.length; i++) {
+        var salary = salaryLevels[i];
+        var employeeAllowance = 0;
+        
+        if (usingEmployersAllowance && employersAllowanceTotal > 0 && totalPotentialEmployerNI > 0) {
+          // Distribute allowance proportionally based on employer NI contribution
+          var proportion = potentialNiByLevel[i] / totalPotentialEmployerNI;
+          employeeAllowance = Math.min(potentialNiByLevel[i], employersAllowanceTotal * proportion);
+        }
+        
+        var result = calculateTax(bottomLineProfit, salary, "1257L", dividend, taxYear, employeeAllowance);
+        data.push({
+          salary: salary,
+          dividend: dividend,
+          salaryCTSaving: result.summary.salaryCorpTaxSaving,
+          dividendCTSaving: result.summary.dividendCorpTaxSaving,
+          employerNICTSaving: result.employer.employerNICorpTaxSaving,
+          totalCTSaving: result.summary.totalCorpTaxSaving,
+          incomeTax: result.employee.incomeTax,
+          dividendTax: result.employee.dividendTax,
+          employeeNi: result.employee.employeeNi,
+          employerNi: result.employer.employerNi,
+          totalTaxCost: result.summary.totalTaxCosts,
+          netTaxPosition: result.summary.netTaxPosition
+        });
+      }
+      
+      var tableBody = document.getElementById('comparison-table-body');
+      tableBody.innerHTML = '';
+      
+      for (var i = 0; i < data.length; i++) {
+        var row = data[i];
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td>' + formatCurrency(row.salary) + '</td>' +
+          '<td>' + formatCurrency(row.dividend) + '</td>' +
+          '<td>' + formatCurrency(row.salaryCTSaving) + '</td>' +
+          '<td>' + formatCurrency(row.employerNICTSaving) + '</td>' +
+          '<td>' + formatCurrency(row.totalCTSaving) + '</td>' +
+          '<td>' + formatCurrency(row.incomeTax) + '</td>' +
+          '<td>' + formatCurrency(row.dividendTax) + '</td>' +
+          '<td>' + formatCurrency(row.employeeNi) + '</td>' +
+          '<td>' + formatCurrency(row.employerNi) + '</td>' +
+          '<td>' + formatCurrency(row.totalTaxCost) + '</td>' +
+          '<td>' + formatCurrency(row.netTaxPosition) + '</td>';
+        tableBody.appendChild(tr);
+      }
+      
+      createComparisonCharts(data);
+      
+      // Display the tax year
+      var taxYearElement = document.getElementById('comp-tax-year-display');
+      var taxYear = document.getElementById('comp-tax-year').value;
+      taxYearElement.textContent = "Tax Year: " + taxYear.replace("-", "/");
+      
+      document.getElementById('comparison-results').style.display = 'block';
+    }
+    
+    // Create charts for salary comparison
+    function createComparisonCharts(data) {
+      var componentsCtx = document.getElementById('components-chart').getContext('2d');
+      if (componentsChart) {
+        componentsChart.destroy();
+      }
+      
+      var labels = [];
+      var salaryCTSavings = [];
+      var dividendCTSavings = [];
+      var employerNICTSavings = [];
+      var incomeTaxes = [];
+      var dividendTaxes = [];
+      var employeeNis = [];
+      var employerNis = [];
+      
+      for (var i = 0; i < data.length; i++) {
+        labels.push(formatCurrency(data[i].salary));
+        salaryCTSavings.push(data[i].salaryCTSaving);
+        // No dividend CT savings to add
+        employerNICTSavings.push(data[i].employerNICTSaving);
+        incomeTaxes.push(-data[i].incomeTax);
+        dividendTaxes.push(-data[i].dividendTax);
+        employeeNis.push(-data[i].employeeNi);
+        employerNis.push(-data[i].employerNi);
+      }
+      
+      componentsChart = new Chart(componentsCtx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Salary CT Saving',
+              data: salaryCTSavings,
+              backgroundColor: 'rgba(75, 192, 192, 0.7)',
+              borderColor: 'rgba(75, 192, 192, 1)',
+              borderWidth: 1,
+              stack: 'Stack 0'
+            },
+            // No Dividend CT Saving as dividends are paid from post-tax profits
+            {
+              label: 'Employer NI CT Saving',
+              data: employerNICTSavings,
+              backgroundColor: 'rgba(153, 102, 255, 0.7)',
+              borderColor: 'rgba(153, 102, 255, 1)',
+              borderWidth: 1,
+              stack: 'Stack 0'
+            },
+            {
+              label: 'Income Tax',
+              data: incomeTaxes,
+              backgroundColor: 'rgba(255, 159, 64, 0.7)',
+              borderColor: 'rgba(255, 159, 64, 1)',
+              borderWidth: 1,
+              stack: 'Stack 0'
+            },
+            {
+              label: 'Dividend Tax',
+              data: dividendTaxes,
+              backgroundColor: 'rgba(241, 196, 15, 0.7)',
+              borderColor: 'rgba(241, 196, 15, 1)',
+              borderWidth: 1,
+              stack: 'Stack 0'
+            },
+            {
+              label: 'Employee NI',
+              data: employeeNis,
+              backgroundColor: 'rgba(52, 152, 219, 0.7)',
+              borderColor: 'rgba(52, 152, 219, 1)',
+              borderWidth: 1,
+              stack: 'Stack 0'
+            },
+            {
+              label: 'Employer NI',
+              data: employerNis,
+              backgroundColor: 'rgba(231, 76, 60, 0.7)',
+              borderColor: 'rgba(231, 76, 60, 1)',
+              borderWidth: 1,
+              stack: 'Stack 0'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { stacked: true, title: { display: true, text: 'Salary Levels' } },
+            y: { stacked: true, title: { display: true, text: 'Amount (£)' } }
+          },
+          plugins: {
+            title: { display: true, text: 'Tax Components by Salary Level', font: { size: 16 } },
+            legend: {
+              display: true,
+              position: 'bottom',
+              labels: {
+                boxWidth: 12,
+                usePointStyle: true,
+                padding: 10
+              }
+            }
+          }
+        }
+      });
+      
+      var positionCtx = document.getElementById('position-chart').getContext('2d');
+      if (positionChart) {
+        positionChart.destroy();
+      }
+      
+      var netPositions = [];
+      for (var j = 0; j < data.length; j++) {
+        netPositions.push(data[j].netTaxPosition);
+      }
+      
+      positionChart = new Chart(positionCtx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Net Tax Position',
+            data: netPositions,
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 2,
+            tension: 0.1,
+            pointRadius: 5,
+            pointHoverRadius: 7
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { title: { display: true, text: 'Salary Levels' } },
+            y: { title: { display: true, text: 'Net Position (£)' }, beginAtZero: false }
+          },
+          plugins: {
+            title: { display: true, text: 'Net Tax Position by Salary Level', font: { size: 16 } }
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
